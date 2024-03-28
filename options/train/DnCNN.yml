@@ -1,0 +1,162 @@
+# ------------------------------------------------------------------------
+# Copyright (c) 2022 megvii-model. All Rights Reserved.
+# ------------------------------------------------------------------------
+# Modified from BasicSR (https://github.com/xinntao/BasicSR)
+# Copyright 2018-2020 BasicSR Authors
+# ------------------------------------------------------------------------
+# general settings
+name: DnCNN-afm-old-reproduce-0.8-0.3
+model_type: ImageRestorationModel
+scale: 1
+num_gpu: 4
+manual_seed: 10
+
+datasets:
+  train:
+    name: SIDD
+    type: PairedImageDataset
+    dataroot_gt: /131_data/datasets/Noise_dataset/sidd/train/gt_crops.lmdb
+    dataroot_lq: /131_data/datasets/Noise_dataset/sidd/train/input_crops.lmdb
+
+    filename_tmpl: '{}'
+    io_backend:
+      type: lmdb
+
+
+    gt_size: 256
+    use_flip: true
+    use_rot: true
+
+    # data loader
+    use_shuffle: true
+    num_worker_per_gpu: 8
+    batch_size_per_gpu: 8
+    dataset_enlarge_ratio: 1
+    prefetch_mode: ~
+
+  val:
+    name: SIDD_val
+    type: PairedImageDataset
+    dataroot_gt: /131_data/datasets/Noise_dataset/sidd/val/gt
+    dataroot_lq: /131_data/datasets/Noise_dataset/sidd/val/input
+    io_backend:
+      type: disk
+
+
+  val_CC:
+    name: CC
+    type: PairedImageDataset
+    dataroot_gt: /cvdata1/datasets/CC/gt
+    dataroot_lq: /cvdata1/datasets/CC/input
+    io_backend:
+      type: disk
+  
+  val_Poly:
+    name: PolyU
+    type: PairedImageDataset
+    dataroot_gt: /cvdata1/datasets/PolyU/gt
+    dataroot_lq: /cvdata1/datasets/PolyU/input
+    io_backend:
+      type: disk
+
+  val_HighISO:
+    name: HighISO
+    type: PairedImageDataset
+    dataroot_gt: /cvdata1/datasets/Noise_dataset/HighISO/clean
+    dataroot_lq: /cvdata1/datasets/Noise_dataset/HighISO/noisy
+    io_backend:
+      type: disk
+  
+  val_HUAWEI:
+    name: HUAWEI
+    type: PairedImageDataset
+    dataroot_gt: /cvdata1/datasets/Noise_dataset/IOCI/HUAWEI_honor6X/clean
+    dataroot_lq: /cvdata1/datasets/Noise_dataset/IOCI/HUAWEI_honor6X/noisy
+    io_backend:
+      type: disk
+
+  val_Iphone:
+    name: IPHONE13
+    type: PairedImageDataset
+    dataroot_gt: /cvdata1/datasets/Noise_dataset/IOCI/IPHONE13/clean
+    dataroot_lq: /cvdata1/datasets/Noise_dataset/IOCI/IPHONE13/noisy
+    io_backend:
+      type: disk
+
+
+network_g:
+  type: DnCNN
+
+
+# path
+path:
+  # pretrain_network_g: '/131_data/dhryou/general_dncnn_final/experiments/DnCNN-afm-fqaug0.5-witheasy0.3/models/net_g_latest.pth'
+  pretrain_network_g: ~
+  strict_load_g: false
+  resume_state: ~
+  root: '/131_data/dhryou/dncnn_original'
+
+# training settings
+train:
+  optim_g:
+    type: AdamW
+    lr: !!float 1e-3
+    weight_decay: !!float 1e-3
+    betas: [0.9, 0.9]
+
+  scheduler:
+    type: TrueCosineAnnealingLR
+    T_max: 200000
+    eta_min: !!float 1e-6
+
+  total_iter: 200000
+  warmup_iter: -1 # no warm ups
+
+  # losses
+  pixel_opt:
+    type: PSNRLoss
+    loss_weight: 1
+    reduction: mean
+
+
+  AFM : false
+  AFM_type : AFM_B
+  ori_loss_rate : 1.0
+  AFM_rate : 0.8
+  AFM_easy_rate : 0.3
+  fq_bound : 1.0
+  
+
+
+
+# validation settings
+val:
+  val_freq: 5000
+  save_img: false
+  use_image: false
+
+  metrics:
+    psnr: # metric name, can be arbitrary
+      type: calculate_psnr
+      crop_border: 0
+      test_y_channel: false
+    ssim:
+      type: calculate_ssim
+      crop_border: 0
+      test_y_channel: false
+
+# logging settings
+logger:
+  print_freq: 500
+  save_checkpoint_freq: 5000
+  use_tb_logger: false
+  wandb:
+    # project: test-project
+    project: DnCNN-ablations
+    resume_id: ~
+
+# dist training settings
+dist_params:
+  backend: nccl
+  port: 29500
+
