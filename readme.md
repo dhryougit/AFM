@@ -27,6 +27,11 @@ python3 -m torch.distributed.launch --nproc_per_node=4 --master_port=4321 basics
 ```
 
 
+For test
+```
+python3 -m torch.distributed.launch --nproc_per_node=1 basicsr/test.py -opt options/test/DnCNN.yml -name=AFM_test --launcher pytorch
+```
+
 ### Dataset
 
 Training dataset : [SIDD](https://abdokamel.github.io/sidd/#sidd-medium)
