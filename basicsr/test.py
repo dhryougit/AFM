@@ -4,16 +4,70 @@
 # Modified from BasicSR (https://github.com/xinntao/BasicSR)
 # Copyright 2018-2020 BasicSR Authors
 # ------------------------------------------------------------------------
+import argparse
 import logging
 import torch
 from os import path as osp
 
 from basicsr.data import create_dataloader, create_dataset
 from basicsr.models import create_model
-from basicsr.train import parse_options
 from basicsr.utils import (get_env_info, get_root_logger, get_time_str,
-                           make_exp_dirs)
-from basicsr.utils.options import dict2str
+                           make_exp_dirs, set_random_seed)
+from basicsr.utils.dist_util import get_dist_info, init_dist
+from basicsr.utils.options import dict2str, parse
+
+
+def parse_options(is_train=True):
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '-opt', type=str, required=True, help='Path to option YAML file.')
+    parser.add_argument(
+        '-name', type=str, required=True, help='test name.')
+    parser.add_argument(
+        '--launcher',
+        choices=['none', 'pytorch', 'slurm'],
+        default='none',
+        help='job launcher')
+    parser.add_argument('--local-rank', type=int, default=0)
+    
+
+
+    args = parser.parse_args()
+    # wandb.config.update(args)
+    opt = parse(args.opt, args.name, is_train=is_train)
+
+    # random seed
+    seed = opt.get('manual_seed')
+    print(f"Seed: {seed}")
+    opt['manual_seed'] = seed
+
+    if seed is None:
+        seed = random.randint(1, 10000)
+        opt['manual_seed'] = seed
+
+    
+    set_random_seed(seed)
+
+    # distributed settings
+    if args.launcher == 'none':
+        opt['dist'] = False
+        print('Disable distributed.', flush=True)
+    else:
+        opt['dist'] = True
+        if args.launcher == 'slurm' and 'dist_params' in opt:
+            init_dist(args.launcher, **opt['dist_params'])
+        else:
+            init_dist(args.launcher)
+            print('init dist .. ', args.launcher)
+
+
+    
+    opt['rank'], opt['world_size'] = get_dist_info()
+  
+
+    return opt
+
+
 
 
 def main():

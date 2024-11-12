@@ -1,0 +1,67 @@
+# ------------------------------------------------------------------------
+# Copyright (c) 2022 megvii-model. All Rights Reserved.
+# ------------------------------------------------------------------------
+# Modified from BasicSR (https://github.com/xinntao/BasicSR)
+# Copyright 2018-2020 BasicSR Authors
+# ------------------------------------------------------------------------
+# general settings
+name: DnCNN_test
+model_type: ImageRestorationModel
+scale: 1
+num_gpu: 1 # set num_gpu: 0 for cpu mode
+manual_seed: 10
+
+# dataset and data loader settings
+datasets:
+  val:
+    name: PolyU
+    type: PairedImageDataset
+
+    dataroot_gt: /131_data/datasets/Noise_dataset/PolyU/gt  # Set your dataset path
+    dataroot_lq: /131_data/datasets/Noise_dataset/PolyU/input # Set your dataset path
+
+    io_backend:
+      type: disk
+
+# network structures
+network_g:
+  type: DnCNN
+
+# path
+path:
+  pretrain_network_g: /131_data/dhryou/finetuned_models/dncnn_afm_b.pth
+  strict_load_g: true
+  resume_state: ~
+  root: './'
+
+# validation settings
+val:
+  save_img: false
+  grids: false
+  use_image: false
+
+  metrics:
+    psnr: # metric name, can be arbitrary
+      type: calculate_psnr
+      crop_border: 0
+      test_y_channel: false
+    ssim:
+      type: calculate_ssim
+      crop_border: 0
+      test_y_channel: false
+
+# training settings
+train:
+  AFM : false
+  AFM_type : AFM_B
+  ori_loss_rate : 1.0
+  AFM_rate : 0.8
+  AFM_easy_rate : 0.3
+  fq_bound : 1.0
+  
+
+
+# dist training settings
+dist_params:
+  backend: nccl
+  port: 29500

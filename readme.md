@@ -31,7 +31,7 @@ python3 -m torch.distributed.launch --nproc_per_node=4 --master_port=4321 basics
 
 Training dataset : [SIDD](https://abdokamel.github.io/sidd/#sidd-medium)
 
-Evaludation datasets : [Poly](https://github.com/csjunxu/PolyU-Real-World-Noisy-Images-Dataset), [CC](https://github.com/csjunxu/MCWNNM-ICCV2017), HighISO, iPhone, Huawei.
+Evaluation datasets : [Poly](https://github.com/csjunxu/PolyU-Real-World-Noisy-Images-Dataset), [CC](https://github.com/csjunxu/MCWNNM-ICCV2017), HighISO, iPhone, Huawei.
 
 Additioanl real-world noise datasets can be downloaded from "https://github.com/ZhaomingKong/Denoising-Comparison"
 
