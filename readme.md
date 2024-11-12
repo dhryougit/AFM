@@ -1,7 +1,7 @@
 <!-- The official pytorch implementation of the paper **[Simple Baselines for Image Restoration (ECCV2022)](https://arxiv.org/abs/2204.04676)** -->
 
 # Robust Image Denoising through Adversarial Frequency Mixup (2024 CVPR) [[paper]](https://openaccess.thecvf.com/content/CVPR2024/html/Ryou_Robust_Image_Denoising_through_Adversarial_Frequency_Mixup_CVPR_2024_paper.html)
-<br>
+
 
 ## Installation
 This implementation based on [BasicSR](https://github.com/xinntao/BasicSR) which is a open source toolbox for image/video restoration tasks and [NAFNet](https://github.com/megvii-research/NAFNet) 
@@ -19,7 +19,7 @@ pip install -r requirements.txt
 python setup.py develop --no_cuda_ext
 ```
 
-We used NVIDIA RTX A6000 D6 48GB for trianing our models.<br>
+We used NVIDIA RTX A6000 D6 48GB for trianing our models.<br><br>
 
 
 ## QuickStart
